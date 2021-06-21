@@ -4,30 +4,46 @@ import (
 	"log"
 	"net/http"
 	"os"
+	// "time"
 
 	"github.com/hex337/alex-koin-go/endpoints"
-
+	"github.com/hex337/alex-koin-go/Models"
+	"github.com/hex337/alex-koin-go/Config"
 	"github.com/joho/godotenv"
+
+	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
 )
 
-// You more than likely want your "Bot User OAuth Access Token" which starts with "xoxb-"
-
 func main() {
+	var err error
 	_, skipEnvFile := os.LookupEnv("SKIP_ENV_FILE")
 	if !skipEnvFile {
-		err := godotenv.Load()
+		err = godotenv.Load()
 		if err != nil {
-			log.Fatal("Error loading .env file")
+			log.Fatalf("Error loading .env file: %s", err.Error())
 		}
 	}
 
+	Config.DB, err = gorm.Open(postgres.Open(Config.DBURL(Config.BuildDBConfig())))
+  if err != nil {
+		log.Fatalf("Could not connect to db : %s", err.Error())
+	}
+
+	// defer config.DB.Close()
+	// config.DB.AutoMigrate(&models.User{})
+
+	var user []Models.User
+	err = Models.GetAllUsers(&user)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	log.Printf("%v", user[0])
+
 	endpoints.SlackEvents()
 
-	log.Println("[INFO] Server listening")
-
-	port, portProvided := os.LookupEnv("PORT")
-	if !portProvided {
-		port = "3000"
-	}
-	http.ListenAndServe(":"+port, nil)
+	serverURL := Config.ServerURL(Config.BuildServerConfig())
+	log.Printf("[INFO] Server listening %s", serverURL)
+	http.ListenAndServe(serverURL, nil)
 }
