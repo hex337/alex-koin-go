@@ -1,19 +1,19 @@
 package Models
 
 import (
-  "time"
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID uint							`gorm:"primaryKey"`
-	Email string
+	gorm.Model
+	Email     string
 	FirstName string
-	LastName string
-	SlackID string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
+	LastName  string
+	SlackID   string
 
-func (b *User) TableName() string {
-  return "users"
+	Coins			[]Coin		
+	CoinsCreated []Coin `gorm:"foreignKey:CreatedByUserId"`
+
+	TransactionsTo []Transaction `gorm:"foreignKey:ToUserID"`
+	TransactionsFrom []Transaction `gorm:"foreignKey:FromUserID"`
 }

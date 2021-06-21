@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// defer config.DB.Close()
-	// config.DB.AutoMigrate(&models.User{})
+	Config.DB.AutoMigrate(&Models.User{}, &Models.Coin{})
 
 	var user []Models.User
 	err = Models.GetAllUsers(&user)
