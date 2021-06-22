@@ -3,35 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
-	// "time"
 
 	"github.com/hex337/alex-koin-go/endpoints"
 	"github.com/hex337/alex-koin-go/Models"
 	"github.com/hex337/alex-koin-go/Config"
-	"github.com/joho/godotenv"
-
-	"gorm.io/gorm"
-	"gorm.io/driver/postgres"
 )
 
 func main() {
 	var err error
-	_, skipEnvFile := os.LookupEnv("SKIP_ENV_FILE")
-	if !skipEnvFile {
-		err = godotenv.Load()
-		if err != nil {
-			log.Fatalf("Error loading .env file: %s", err.Error())
-		}
-	}
 
-	Config.DB, err = gorm.Open(postgres.Open(Config.DBURL(Config.BuildDBConfig())))
-  if err != nil {
-		log.Fatalf("Could not connect to db : %s", err.Error())
-	}
+	Config.GetEnvVars()
+	Config.DBOpen()
 
 	// defer config.DB.Close()
-	Config.DB.AutoMigrate(&Models.User{}, &Models.Coin{})
+	Config.DB.AutoMigrate(&Models.Transaction{}, &Models.User{}, &Models.Coin{})
 
 	var user []Models.User
 	err = Models.GetAllUsers(&user)
