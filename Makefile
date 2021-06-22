@@ -1,4 +1,4 @@
-.PHONY: bash build coverage deps help logs migrate ps restart seed setup_db stop test up db_dump
+.PHONY: bash build deps help logs migrate ps restart seed setup_db stop test up db_dump
 
 SERVICE ?= bot
 
@@ -15,10 +15,6 @@ bash: #: Bash prompt on running container
 build: #: Build containers
 	touch .env
 	docker-compose build
-
-coverage: #: Generate HTML coverage report
-	docker-compose run --rm -e MIX_ENV=test $(SERVICE) mix coveralls.html
-	open cover/excoveralls.html
 
 deps: #: Install the dependencies
 	docker-compose run --rm -e MIX_ENV=test $(SERVICE) mix deps.get
