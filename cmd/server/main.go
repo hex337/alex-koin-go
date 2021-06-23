@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/hex337/alex-koin-go/endpoints"
-	"github.com/hex337/alex-koin-go/Models"
 	"github.com/hex337/alex-koin-go/Config"
+	"github.com/hex337/alex-koin-go/Models"
+	"github.com/hex337/alex-koin-go/endpoints"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	Config.DBOpen()
 
 	// defer config.DB.Close()
-	Config.DB.AutoMigrate(&Models.Transaction{}, &Models.User{}, &Models.Coin{})
+	Config.DB.AutoMigrate(&Models.User{}, &Models.Coin{}, &Models.Transaction{})
 
 	var user []Models.User
 	err = Models.GetAllUsers(&user)

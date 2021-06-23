@@ -14,4 +14,5 @@ RUN CGO_ENABLED=0 go build -o /bin/akc cmd/server/main.go
 
 FROM scratch
 COPY --from=build /bin/akc bin/akc
+COPY .env .
 ENTRYPOINT ["/bin/akc"]
