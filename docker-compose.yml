@@ -7,8 +7,12 @@ services:
       dockerfile: Dockerfile
     image: alex_koin:latest
     env_file: .env
+    environment:
+      - DATABASE_URL=postgres://db:5432/akc
     volumes:
       - .:/src
+    ports:
+      - "3000:3000"
     depends_on:
       - db
 
