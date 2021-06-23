@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/hex337/alex-koin-go/Config"
+	"github.com/hex337/alex-koin-go/Model"
+
 	"log"
 
-	"github.com/hex337/alex-koin-go/Model"
-	"github.com/hex337/alex-koin-go/Config"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -40,13 +41,13 @@ func main() {
 		CreatedByUserId: user1.Model.ID,
 		Transactions: []Model.Transaction{
 			{
-				Amount: 1,
-				Memo: "Initial Koin Creation",
+				Amount:     1,
+				Memo:       "Initial Koin Creation",
 				FromUserID: user1.Model.ID,
-				ToUserID: user2.Model.ID,
-		  },
-	  },
-  }
+				ToUserID:   user2.Model.ID,
+			},
+		},
+	}
 
 	err =  Model.CreateCoin(coin)
 	if err != nil {

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/hex337/alex-koin-go/Config"
 	"github.com/hex337/alex-koin-go/Router"
+
+	"log"
+	"net/http"
 )
 
 func main() {
