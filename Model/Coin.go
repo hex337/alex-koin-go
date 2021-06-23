@@ -1,4 +1,4 @@
-package Models
+package Model
 
 import (
 	"github.com/hex337/alex-koin-go/Config"
