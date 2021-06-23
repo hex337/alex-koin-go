@@ -1,1 +1,2 @@
 web: server
+release: migration
