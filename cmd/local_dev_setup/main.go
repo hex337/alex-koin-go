@@ -1,51 +1,17 @@
-
 package main
 
 import (
 	"log"
-	"os"
-	"time"
 
 	"github.com/hex337/alex-koin-go/Models"
 	"github.com/hex337/alex-koin-go/Config"
-	"github.com/joho/godotenv"
 	"github.com/davecgh/go-spew/spew"
-
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/driver/postgres"
 )
 
 func main() {
 	var err error
-	_, skipEnvFile := os.LookupEnv("SKIP_ENV_FILE")
-	if !skipEnvFile {
-		err = godotenv.Load()
-		if err != nil {
-			log.Fatalf("Error loading .env file: %s", err.Error())
-		}
-	}
-
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold:              time.Second,   // Slow SQL threshold
-			LogLevel:                   logger.Info, // Log level
-			IgnoreRecordNotFoundError: true,           // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,          // Disable color
-		},
-	)
-
-	Config.DB, err = gorm.Open(
-		postgres.Open(Config.DBURL(Config.BuildDBConfig())),
-		&gorm.Config{ Logger: newLogger },
-	)
-  if err != nil {
-		log.Fatalf("Could not connect to db : %s", err.Error())
-	}
-
-  
-
+	Config.GetEnvVars()
+	Config.DBOpen()
 	// defer Config.DB.Close()
 
 	Config.DB.Migrator().DropTable(&Models.User{})
