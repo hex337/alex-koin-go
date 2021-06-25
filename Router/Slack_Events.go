@@ -1,6 +1,8 @@
 package Router
 
 import (
+	"github.com/hex337/alex-koin-go/Commands"
+
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -13,10 +15,7 @@ import (
 )
 
 func SlackEvents () {
-	botSecret := os.Getenv("SLACK_BOT_SECRET")
 	signingSecret := os.Getenv("SLACK_SIGNING_SECRET")
-
-	var api = slack.New(botSecret)
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
@@ -56,19 +55,21 @@ func SlackEvents () {
 
 		if eventsAPIEvent.Type == slackevents.CallbackEvent {
 			innerEvent := eventsAPIEvent.InnerEvent
-			log.Printf("%v\n", innerEvent.Data)
 			switch ev := innerEvent.Data.(type) {
 
-			// Someone mentioning the bot by name
 			case *slackevents.AppMentionEvent:
-				log.Printf("%#v", ev)
-				text := strings.Split(ev.Text, " ")[0]
-				api.PostMessage(
-					ev.Channel,
-					slack.MsgOptionText(text, false),
-					slack.MsgOptionTS(ev.TimeStamp), // reply in thread
-				)
 
+				botId := "<@U025MPQCB9A> "
+
+				// Someone mentioning the bot by name
+				if(strings.HasPrefix(ev.Text, botId)) {
+					msg := strings.TrimPrefix(ev.Text, botId)
+					
+					err := Commands.ProcessMessage(ev.Channel, ev.TimeStamp, msg)
+					if err != nil {
+						log.Fatalf("Could not process message: %v", err)
+					}
+				}
 			}
 		}
 	})
