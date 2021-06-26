@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
@@ -58,17 +57,9 @@ func SlackEvents () {
 			switch ev := innerEvent.Data.(type) {
 
 			case *slackevents.AppMentionEvent:
-
-				botId := "<@U025MPQCB9A> "
-
-				// Someone mentioning the bot by name
-				if(strings.HasPrefix(ev.Text, botId)) {
-					msg := strings.TrimPrefix(ev.Text, botId)
-					
-					err := Commands.ProcessMessage(ev.Channel, ev.TimeStamp, msg)
-					if err != nil {
-						log.Fatalf("Could not process message: %v", err)
-					}
+				err := Commands.ProcessMessage(ev.Channel, ev.TimeStamp, ev.Text)
+				if err != nil {
+					log.Printf("[Error] Could not process message: error=%v msg=%v", err, ev.Text)
 				}
 			}
 		}
