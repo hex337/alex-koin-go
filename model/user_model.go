@@ -1,4 +1,4 @@
-package Model
+package model
 
 import (
 	"gorm.io/gorm"
@@ -11,9 +11,9 @@ type User struct {
 	LastName  string
 	SlackID   string
 
-	Coins			[]Coin		
+	Coins        []Coin
 	CoinsCreated []Coin `gorm:"foreignKey:CreatedByUserId"`
 
-	TransactionsTo []Transaction `gorm:"foreignKey:ToUserID"`
+	TransactionsTo   []Transaction `gorm:"foreignKey:ToUserID"`
 	TransactionsFrom []Transaction `gorm:"foreignKey:FromUserID"`
 }

@@ -1,20 +1,20 @@
 package main
 
 import (
-	"github.com/hex337/alex-koin-go/Config"
-	"github.com/hex337/alex-koin-go/Router"
+	"github.com/hex337/alex-koin-go/config"
+	"github.com/hex337/alex-koin-go/router"
 
 	"log"
 	"net/http"
 )
 
 func main() {
-	Config.GetEnvVars()
-	Config.DBOpen()
+	config.GetEnvVars()
+	config.DBOpen()
 
-	Router.SlackEvents()
+	router.SlackEvents()
 
-	serverURL := Config.ServerURL(Config.BuildServerConfig())
+	serverURL := config.ServerURL(config.BuildServerConfig())
 	log.Printf("[INFO] Server listening %s", serverURL)
 	http.ListenAndServe(serverURL, nil)
 }

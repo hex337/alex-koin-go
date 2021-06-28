@@ -1,7 +1,7 @@
-package Router
+package router
 
 import (
-	"github.com/hex337/alex-koin-go/Commands"
+	"github.com/hex337/alex-koin-go/command"
 
 	"encoding/json"
 	"io/ioutil"
@@ -13,7 +13,7 @@ import (
 	"github.com/slack-go/slack/slackevents"
 )
 
-func SlackEvents () {
+func SlackEvents() {
 	signingSecret := os.Getenv("SLACK_SIGNING_SECRET")
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +57,7 @@ func SlackEvents () {
 			switch ev := innerEvent.Data.(type) {
 
 			case *slackevents.AppMentionEvent:
-				err := Commands.ProcessMessage(ev.Channel, ev.TimeStamp, ev.Text)
+				err := command.ProcessMessage(ev.Channel, ev.TimeStamp, ev.Text)
 				if err != nil {
 					log.Printf("[Error] Could not process message: error=%v msg=%v", err, ev.Text)
 				}
