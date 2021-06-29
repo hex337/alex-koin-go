@@ -17,7 +17,7 @@ func BuildServerConfig() *ServerConfig {
 	}
 
 	serverConfig := ServerConfig{
-		Host: "0.0.0.0",
+		Host: "127.0.0.1",
 		Port: port,
 	}
 	return &serverConfig

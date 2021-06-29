@@ -1,7 +1,10 @@
 package command
 
 import (
+	"github.com/hex337/alex-koin-go/config"
+
 	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -11,7 +14,7 @@ import (
 
 func ProcessMessage(channel string, msgTimestamp string, msg string) error {
 
-	botID := "<@U025MPQCB9A> "
+	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
 
 	name, err := parseCommandName(strings.TrimPrefix(msg, botID))
 	if err != nil {
@@ -19,9 +22,13 @@ func ProcessMessage(channel string, msgTimestamp string, msg string) error {
 	}
 
 	response, err := RunCommand(name)
-	replyWith(channel, msgTimestamp, response)
 
-	return err
+	replyWith(channel, msgTimestamp, response)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func parseCommandName(msg string) (string, error) {
@@ -41,11 +48,11 @@ func parseCommandName(msg string) (string, error) {
 	return "", errors.New("no match")
 }
 
-func replyWith(channel string, msgTimestamp string, response string) (err error) {
+func replyWith(channel string, msgTimestamp string, response string) error {
 	botSecret := os.Getenv("SLACK_BOT_SECRET")
 	var api = slack.New(botSecret)
 
-	api.PostMessage(
+	_, _, err := api.PostMessage(
 		channel,
 		slack.MsgOptionText(response, false),
 		slack.MsgOptionTS(msgTimestamp), // reply in thread

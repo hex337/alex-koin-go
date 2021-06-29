@@ -2,7 +2,7 @@ package command
 
 import (
 	"github.com/hex337/alex-koin-go/model"
-	
+
 	"fmt"
 )
 
@@ -18,8 +18,8 @@ func (c *BalanceCommand) Run(msg string) (string, error) {
 		return "Internal error", err
 	}
 
-	balance := model.GetUserBalance(&user)	
+	balance := model.GetUserBalance(&user)
 	results := fmt.Sprintf("Your current balance is %d koin", balance)
-	
+
 	return results, nil
 }
