@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ type Command interface {
 }
 
 func RunCommand(name string) (string, error) {
-	registry := NewCommandRegistry()
+	registry := NewRegistry()
 	registry.Register("balance", &BalanceCommand{})
 	cmd, _ := registry.Lookup(name)
 	//TODO do something with err
@@ -18,21 +18,21 @@ func RunCommand(name string) (string, error) {
 
 // CommandRegistry contains Command implementations that implement custom
 // behaviors for each supported koin command
-type CommandRegistry struct {
+type Registry struct {
 	impls map[string]Command
 }
 
-func NewCommandRegistry() *CommandRegistry {
-	return &CommandRegistry{impls: map[string]Command{}}
+func NewRegistry() *Registry {
+	return &Registry{impls: map[string]Command{}}
 }
 
 // Register registers impl for commands. It will be called by ProcessMessage()
-func (r *CommandRegistry) Register(name string, impl Command) {
+func (r *Registry) Register(name string, impl Command) {
 	r.impls[name] = impl
 }
 
 // Lookup returns the Command implementation or an error if one can't be found.
-func (r *CommandRegistry) Lookup(name string) (Command, error) {
+func (r *Registry) Lookup(name string) (Command, error) {
 	impl, ok := r.impls[name]
 	if !ok {
 		var cmd Command

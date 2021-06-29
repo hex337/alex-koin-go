@@ -12,7 +12,14 @@ func CreateUser(user *User) (err error) {
 }
 
 func GetUserByID(user *User, id string) (err error) {
-	if err = config.DB.Preload("Coins").Where("id = ?", id).First(user).Error; err != nil {
+	if err = config.DB.Where("id = ?", id).First(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetUserBySlackID(user *User, id string) (err error) {
+	if err = config.DB.Where("slack_id = ?", id).First(user).Error; err != nil {
 		return err
 	}
 	return nil

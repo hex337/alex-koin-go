@@ -22,7 +22,7 @@ func main() {
 	config.DB.AutoMigrate(&model.Transaction{}, &model.User{}, &model.Coin{})
 
 	user1 := &model.User{FirstName: "Alex", LastName: "Koin"}
-	user2 := &model.User{FirstName: "Koin", LastName: "Lord"}
+	user2 := &model.User{FirstName: "Koin", LastName: "Lord", SlackID: "W0122R46YBC"}
 
 	err = model.CreateUser(user1)
 	if err != nil {
