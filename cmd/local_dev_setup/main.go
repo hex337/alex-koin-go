@@ -54,15 +54,14 @@ func main() {
 		log.Fatalf("Could not create coin : %s", err.Error())
 	}
 
-	var user model.User
-	err = model.GetUserByID(&user, "1")
+	user1, err = model.GetUserByID(1)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	spew.Dump(user1)
 	log.Printf("\nUser 1 Balance : %d\nUser 2 Balance : %d",
-		model.GetUserBalance(user1),
-		model.GetUserBalance(user2),
+		user1.GetBalance(),
+		user2.GetBalance(),
 	)
 }

@@ -22,8 +22,11 @@ func ProcessMessage(channel string, msgTimestamp string, msg string) error {
 	}
 
 	response, err := RunCommand(name)
+	if err != nil {
+		return err
+	}
 
-	replyWith(channel, msgTimestamp, response)
+	err = replyWith(channel, msgTimestamp, response)
 	if err != nil {
 		return err
 	}

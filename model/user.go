@@ -11,27 +11,22 @@ func CreateUser(user *User) (err error) {
 	return nil
 }
 
-func GetUserByID(user *User, id string) (err error) {
-	if err = config.DB.Where("id = ?", id).First(user).Error; err != nil {
-		return err
+func GetUserByID(id int64) (*User, error) {
+	var user User
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return &user, err
 	}
-	return nil
+	return &user, nil
 }
 
-func GetUserBySlackID(user *User, id string) (err error) {
-	if err = config.DB.Where("slack_id = ?", id).First(user).Error; err != nil {
-		return err
+func GetUserBySlackID(id string) (*User, error) {
+	var user User
+	if err := config.DB.Where("slack_id = ?", id).First(&user).Error; err != nil {
+		return &user, err
 	}
-	return nil
+	return &user, nil
 }
 
-func GetAllUsers(user *[]User) (err error) {
-	if err = config.DB.Find(user).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func GetUserBalance(user *User) (count int64) {
-	return config.DB.Model(&user).Association("Coins").Count()
+func (u *User) GetBalance() (count int64) {
+	return config.DB.Model(&u).Association("Coins").Count()
 }

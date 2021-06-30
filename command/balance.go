@@ -12,14 +12,12 @@ func (c *BalanceCommand) Run(msg string) (string, error) {
 
 	slackId := "W0122R46YBC"
 
-	var user model.User
-	err := model.GetUserBySlackID(&user, slackId)
+	user, err := model.GetUserBySlackID(slackId)
 	if err != nil {
 		return "Internal error", err
 	}
 
-	balance := model.GetUserBalance(&user)
-	results := fmt.Sprintf("Your current balance is %d koin", balance)
+	results := fmt.Sprintf("Your current balance is %d koin", user.GetBalance())
 
 	return results, nil
 }
