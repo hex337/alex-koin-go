@@ -20,13 +20,16 @@ logs: #: Tail the service container's logs
 	docker compose logs -tf $(SERVICE)
 
 migrate: #: Run migrations
-	docker compose run --rm $(SERVICE) mix ecto.migrate
+	docker compose run --rm --entrypoint /bin/migration bot
 
 ps: #: Show running processes
 	docker compose ps
 
 restart: #: Restart the service container
 	docker compose restart $(SERVICE)
+
+setup:
+	docker compose run --rm --entrypoint /bin/local-dev-setup bot
 
 stop: #: Stop running containers
 	docker-compose stop
