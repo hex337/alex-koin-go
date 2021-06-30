@@ -19,4 +19,4 @@ COPY --from=build /bin/server bin/server
 COPY --from=build /bin/migration bin/migration
 COPY --from=build /bin/local-dev-setup bin/local-dev-setup
 COPY .env .
-ENTRYPOINT ["/bin/akc"]
+ENTRYPOINT ["/bin/server"]
