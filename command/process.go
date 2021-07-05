@@ -3,36 +3,36 @@ package command
 import (
 	"github.com/hex337/alex-koin-go/config"
 
-	"errors"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 )
 
-func ProcessMessage(event *slackevents.AppMentionEvent) error {
+func ProcessMessage(event *slackevents.AppMentionEvent) {
 
 	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
 
 	name, err := parseCommandName(strings.TrimPrefix(event.Text, botID))
 	if err != nil {
-		return err
+
+		log.Printf("Could not parseCommandName : %v", err)
 	}
 
 	response, err := RunCommand(name, event)
 	if err != nil {
-		return err
+		log.Printf("Could not RunCommand : %v", err)
 	}
 
 	err = replyWith(event.Channel, event.TimeStamp, response)
 	if err != nil {
-		return err
+		log.Printf("Could not replyWith : %v", err)
 	}
-
-	return nil
 }
 
 func parseCommandName(msg string) (string, error) {

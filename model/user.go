@@ -2,6 +2,10 @@ package model
 
 import (
 	"github.com/hex337/alex-koin-go/config"
+
+	"errors"
+
+	"gorm.io/gorm"
 )
 
 func CreateUser(user *User) (err error) {
@@ -13,17 +17,27 @@ func CreateUser(user *User) (err error) {
 
 func GetUserByID(id int64) (*User, error) {
 	var user User
-	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+	err := config.DB.Where("id = ?", id).First(&user).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &user, nil
+	} else if err != nil {
 		return &user, err
 	}
+
 	return &user, nil
 }
 
 func GetUserBySlackID(id string) (*User, error) {
 	var user User
-	if err := config.DB.Where("slack_id = ?", id).First(&user).Error; err != nil {
+	err := config.DB.Where("slack_id = ?", id).First(&user).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return &user, nil
+	} else if err != nil {
 		return &user, err
 	}
+
 	return &user, nil
 }
 

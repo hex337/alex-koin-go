@@ -15,7 +15,10 @@ func (c *BalanceCommand) Run(msg string, event *slackevents.AppMentionEvent) (st
 	slackId := event.User
 
 	user, err := model.GetUserBySlackID(slackId)
-	if err != nil {
+
+	if (&model.User{}) == user {
+		return fmt.Sprintf("Your current balance is %d koin", 0), nil
+	} else if err != nil {
 		return "Internal error", err
 	}
 
