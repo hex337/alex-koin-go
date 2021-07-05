@@ -1,13 +1,13 @@
-package Config
+package config
 
 import (
 	"log"
 	"os"
 	"time"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/driver/postgres"
 )
 
 var DB *gorm.DB
@@ -18,18 +18,18 @@ func DBOpen() {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
-			SlowThreshold:              time.Second,   // Slow SQL threshold
-			LogLevel:                   logger.Info, // Log level
-			IgnoreRecordNotFoundError: true,           // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,          // Disable color
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			Colorful:                  false,       // Disable color
 		},
 	)
 
 	DB, err = gorm.Open(
 		postgres.Open(dbUrl()),
-		&gorm.Config{ Logger: newLogger },
+		&gorm.Config{Logger: newLogger},
 	)
-  if err != nil {
+	if err != nil {
 		log.Fatalf("Could not connect to db : %s", err.Error())
 	}
 }

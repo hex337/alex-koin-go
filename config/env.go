@@ -1,4 +1,4 @@
-package Config
+package config
 
 import (
 	"log"
@@ -6,6 +6,14 @@ import (
 
 	"github.com/joho/godotenv"
 )
+
+func GetBotSlackID() string {
+	botId, botIdProvided := os.LookupEnv("SLACK_BOT_ID")
+	if !botIdProvided {
+		log.Fatalf("env var SLACK_BOT_ID not set")
+	}
+	return botId
+}
 
 func GetEnvVars() {
 	var err error

@@ -6,18 +6,18 @@ package main
 import (
 	"log"
 
-	"github.com/hex337/alex-koin-go/Config"
-	"github.com/hex337/alex-koin-go/Model"
+	"github.com/hex337/alex-koin-go/config"
+	"github.com/hex337/alex-koin-go/model"
 )
 
 func main() {
 
 	log.Println("Starting database migrations")
-	Config.GetEnvVars()
-	Config.DBOpen()
+	config.GetEnvVars()
+	config.DBOpen()
 
 	// TODO SELECT pg_try_advisory_lock(migration); and if f don't run migration as they are already happening
-	Config.DB.AutoMigrate(&Model.Transaction{}, &Model.User{}, &Model.Coin{})
+	config.DB.AutoMigrate(&model.User{}, &model.Coin{}, &model.Transaction{})
 	// TODO SELECT pg_advisory_unlock(migration);
 
 }

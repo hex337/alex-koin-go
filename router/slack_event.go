@@ -1,22 +1,20 @@
-package Router
+package router
 
 import (
+	"github.com/hex337/alex-koin-go/command"
+
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 )
 
-func SlackEvents () {
-	botSecret := os.Getenv("SLACK_BOT_SECRET")
+func SlackEvents() {
 	signingSecret := os.Getenv("SLACK_SIGNING_SECRET")
-
-	var api = slack.New(botSecret)
 
 	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
@@ -56,19 +54,11 @@ func SlackEvents () {
 
 		if eventsAPIEvent.Type == slackevents.CallbackEvent {
 			innerEvent := eventsAPIEvent.InnerEvent
-			log.Printf("%v\n", innerEvent.Data)
 			switch ev := innerEvent.Data.(type) {
 
-			// Someone mentioning the bot by name
 			case *slackevents.AppMentionEvent:
-				log.Printf("%#v", ev)
-				text := strings.Split(ev.Text, " ")[0]
-				api.PostMessage(
-					ev.Channel,
-					slack.MsgOptionText(text, false),
-					slack.MsgOptionTS(ev.TimeStamp), // reply in thread
-				)
-
+				log.Printf("INF Recvd AppMentionedEvent %+v", ev)
+				go command.ProcessMessage(ev)
 			}
 		}
 	})

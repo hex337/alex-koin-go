@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hex337/alex-koin-go/Config"
-	"github.com/hex337/alex-koin-go/Model"
+	"github.com/hex337/alex-koin-go/config"
+	"github.com/hex337/alex-koin-go/model"
 
 	"log"
 
@@ -11,35 +11,35 @@ import (
 
 func main() {
 	var err error
-	Config.GetEnvVars()
-	Config.DBOpen()
+	config.GetEnvVars()
+	config.DBOpen()
 	// defer Config.DB.Close()
 
-	Config.DB.Migrator().DropTable(&Model.User{})
-	Config.DB.Migrator().DropTable(&Model.Coin{})
-	Config.DB.Migrator().DropTable(&Model.Transaction{})
+	config.DB.Migrator().DropTable(&model.User{})
+	config.DB.Migrator().DropTable(&model.Coin{})
+	config.DB.Migrator().DropTable(&model.Transaction{})
 
-	Config.DB.AutoMigrate(&Model.Transaction{}, &Model.User{}, &Model.Coin{})
+	config.DB.AutoMigrate(&model.Transaction{}, &model.User{}, &model.Coin{})
 
-	user1 := &Model.User{ FirstName: "Alex", LastName: "Koin" }
-	user2 := &Model.User{ FirstName: "Koin", LastName: "Lord" }
+	user1 := &model.User{FirstName: "Alex", LastName: "Koin"}
+	user2 := &model.User{FirstName: "Koin", LastName: "Lord", SlackID: "W0122R46YBC"}
 
-	err =  Model.CreateUser(user1)
+	err = model.CreateUser(user1)
 	if err != nil {
 		log.Fatalf("Could not create user : %s", err.Error())
 	}
 
-	err =  Model.CreateUser(user2)
+	err = model.CreateUser(user2)
 	if err != nil {
 		log.Fatalf("Could not create user : %s", err.Error())
 	}
 
-	coin := &Model.Coin{ 
-		Origin: "Reason for the season",
-		MinedByUserID: user1.Model.ID,
-		UserID: user2.Model.ID,
+	coin := &model.Coin{
+		Origin:          "Reason for the season",
+		MinedByUserID:   user1.Model.ID,
+		UserID:          user2.Model.ID,
 		CreatedByUserId: user1.Model.ID,
-		Transactions: []Model.Transaction{
+		Transactions: []model.Transaction{
 			{
 				Amount:     1,
 				Memo:       "Initial Koin Creation",
@@ -49,20 +49,19 @@ func main() {
 		},
 	}
 
-	err =  Model.CreateCoin(coin)
+	err = model.CreateCoin(coin)
 	if err != nil {
 		log.Fatalf("Could not create coin : %s", err.Error())
 	}
 
-	var user Model.User
-	err = Model.GetUserByID(&user, "1")
+	user1, err = model.GetUserByID(1)
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	spew.Dump(user1)
-	log.Printf("\nUser 1 Balance : %d\nUser 2 Balance : %d", 
-		Model.GetUserBalance(user1),
-		Model.GetUserBalance(user2),
+	log.Printf("\nUser 1 Balance : %d\nUser 2 Balance : %d",
+		user1.GetBalance(),
+		user2.GetBalance(),
 	)
 }
