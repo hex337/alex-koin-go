@@ -41,6 +41,10 @@ func GetUserBySlackID(id string) (*User, error) {
 	return &user, nil
 }
 
-func (u *User) GetBalance() (count int64) {
+func (u *User) GetBalance() int64 {
 	return config.DB.Model(&u).Association("Coins").Count()
+}
+
+func (u *User) IsEmpty() bool {
+	return (&User{}) == u
 }
