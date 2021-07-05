@@ -10,23 +10,24 @@ import (
 	"strings"
 
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
 )
 
-func ProcessMessage(channel string, msgTimestamp string, msg string) error {
+func ProcessMessage(event *slackevents.AppMentionEvent) error {
 
 	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
 
-	name, err := parseCommandName(strings.TrimPrefix(msg, botID))
+	name, err := parseCommandName(strings.TrimPrefix(event.Text, botID))
 	if err != nil {
 		return err
 	}
 
-	response, err := RunCommand(name)
+	response, err := RunCommand(name, event)
 	if err != nil {
 		return err
 	}
 
-	err = replyWith(channel, msgTimestamp, response)
+	err = replyWith(event.Channel, event.TimeStamp, response)
 	if err != nil {
 		return err
 	}
@@ -42,7 +43,7 @@ func parseCommandName(msg string) (string, error) {
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 		if matched {
 			return name, nil

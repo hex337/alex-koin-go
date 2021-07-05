@@ -57,7 +57,7 @@ func SlackEvents() {
 			switch ev := innerEvent.Data.(type) {
 
 			case *slackevents.AppMentionEvent:
-				err := command.ProcessMessage(ev.Channel, ev.TimeStamp, ev.Text)
+				err := command.ProcessMessage(ev)
 				if err != nil {
 					log.Printf("[Error] Could not process message: error=%v msg=%v", err, ev.Text)
 				}

@@ -2,18 +2,24 @@ package command
 
 import (
 	"fmt"
+
+	"github.com/slack-go/slack/slackevents"
 )
 
 type Command interface {
-	Run(msg string) (string, error)
+	Run(msg string, event *slackevents.AppMentionEvent) (string, error)
 }
 
-func RunCommand(name string) (string, error) {
+func RunCommand(name string, event *slackevents.AppMentionEvent) (string, error) {
 	registry := NewRegistry()
 	registry.Register("balance", &BalanceCommand{})
-	cmd, _ := registry.Lookup(name)
-	//TODO do something with err
-	return cmd.Run(name)
+	cmd, err := registry.Lookup(name)
+
+	if err != nil {
+		return "", err
+	}
+
+	return cmd.Run(name, event)
 }
 
 // CommandRegistry contains Command implementations that implement custom
