@@ -1,4 +1,7 @@
 
+## Welcome
+
+Alex Koin is being rewritten in golang. If you are interesteded in helping out, please read on!
 
 ## Development
 
@@ -9,6 +12,7 @@ CREATE DATABASE akc;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
+This should be run with your local `psql` command. The `\copy` function will pull from your local directory.
 ``` SQL
 \COPY
 	(SELECT ID,
