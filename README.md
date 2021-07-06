@@ -1,6 +1,14 @@
 
+## Welcome
+
+Alex Koin is being rewritten in golang. If you are interesteded in helping out, please read on!
 
 ## Development
+
+1. `make up`
+2. `ngrok http -subdomain=yourdomain 3000`
+3. Configure Slack app's event endpoint to call https://yourdomain.ngrok.io/events
+4. Add slack settings to .env file (copy .env.template)
 
 ### Database Setup
 
@@ -9,6 +17,7 @@ CREATE DATABASE akc;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
+This should be run with your local `psql` command. The `\copy` function will pull from your local directory.
 ``` SQL
 \COPY
 	(SELECT ID,
