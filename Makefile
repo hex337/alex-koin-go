@@ -22,7 +22,7 @@ deep-clean: stop
 logs: #: Tail the service container's logs
 	docker compose logs -tf $(SERVICE)
 
-migrate: #: Run migrations
+migrate: build up #: Run migrations
 	docker compose run --rm --entrypoint /bin/migration bot
 
 ps: #: Show running processes
@@ -31,7 +31,7 @@ ps: #: Show running processes
 restart: #: Restart the service container
 	docker compose restart $(SERVICE)
 
-setup:
+setup: build up
 	docker compose run --rm --entrypoint /bin/local-dev-setup bot
 
 stop: #: Stop running containers

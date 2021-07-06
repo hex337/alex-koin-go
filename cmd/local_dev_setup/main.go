@@ -54,8 +54,8 @@ func main() {
 		log.Fatalf("Could not create coin : %s", err.Error())
 	}
 
-	user1, err = model.GetUserByID(1)
-	if err != nil {
+	user1, res, err := model.GetUserByID(1)
+	if err != nil && res == false {
 		log.Println(err.Error())
 	}
 
