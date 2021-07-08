@@ -13,6 +13,7 @@ type Command interface {
 func RunCommand(name string, event *slackevents.AppMentionEvent) (string, error) {
 	registry := NewRegistry()
 	registry.Register("balance", &BalanceCommand{})
+	registry.Register("what_am_i", &IdentityCommand{})
 	cmd, err := registry.Lookup(name)
 
 	if err != nil {

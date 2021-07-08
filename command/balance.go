@@ -22,7 +22,7 @@ func (c *BalanceCommand) Run(msg string, event *slackevents.AppMentionEvent) (st
 		return "Internal error", err
 	}
 
-	results := fmt.Sprintf("Your current balance is %d koin", user.GetBalance())
+	results := fmt.Sprintf("Your current balance is %d :akc:", user.GetBalance())
 
 	return results, nil
 }
