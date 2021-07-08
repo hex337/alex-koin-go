@@ -23,6 +23,8 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 		log.Printf("Could not parseCommandName : %v", err)
 	}
 
+	log.Printf("Command name : %v", name)
+
 	if name == "" {
 		response := ":blob-wave: \n\nI am under construction and I am still learning how to handle koin.\n\nCheck out https://github.com/hex337/alex-koin-go"
 		err := replyWith(event.Channel, event.TimeStamp, response)
@@ -49,7 +51,8 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 
 func parseCommandName(msg string) (string, error) {
 	commands := map[string]string{
-		"balance": `^my balance`,
+		"balance":   `^my balance`,
+		"what_am_i": `^what am I`,
 	}
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)

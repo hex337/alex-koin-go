@@ -53,3 +53,17 @@ func (u *User) IsEmpty() bool {
 	log.Printf("isEmpty: %t", empty)
 	return empty
 }
+
+func (u *User) IsAdmin() bool {
+	adminIds := config.GetAdminSlackIds()
+	_, exists := adminIds[u.SlackID]
+
+	return exists
+}
+
+func (u *User) IsKoinLord() bool {
+	koinLordIds := config.GetKoinLordSlackIds()
+	_, exists := koinLordIds[u.SlackID]
+
+	return exists
+}
