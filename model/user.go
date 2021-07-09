@@ -4,7 +4,6 @@ import (
 	"github.com/hex337/alex-koin-go/config"
 
 	"errors"
-	"log"
 
 	"gorm.io/gorm"
 )
@@ -46,24 +45,26 @@ func (u *User) GetBalance() int64 {
 	return config.DB.Model(&u).Association("Coins").Count()
 }
 
-func (u *User) IsEmpty() bool {
-	empty := (&User{}) == u
-	log.Printf("USER: %+v", u)
-	log.Printf("USER: %+v", &User{})
-	log.Printf("isEmpty: %t", empty)
-	return empty
-}
+func (u *User) Role() *UserRole {
 
-func (u *User) IsAdmin() bool {
+	var role UserRole
+
+	role.Admin = false
+	role.Lord = false
+
 	adminIds := config.GetAdminSlackIds()
 	_, exists := adminIds[u.SlackID]
 
-	return exists
-}
+	if exists {
+		role.Admin = true
+	}
 
-func (u *User) IsKoinLord() bool {
 	koinLordIds := config.GetKoinLordSlackIds()
-	_, exists := koinLordIds[u.SlackID]
+	_, exists = koinLordIds[u.SlackID]
 
-	return exists
+	if exists {
+		role.Lord = true
+	}
+
+	return &role
 }

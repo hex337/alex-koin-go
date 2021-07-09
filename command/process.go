@@ -51,8 +51,9 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 
 func parseCommandName(msg string) (string, error) {
 	commands := map[string]string{
-		"balance":   `^my balance`,
-		"what_am_i": `^what am I`,
+		// Who says regexp are not readable
+		"balance":   `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
+		"what_am_i": `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
 	}
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)

@@ -17,3 +17,8 @@ type User struct {
 	TransactionsTo   []Transaction `gorm:"foreignKey:ToUserID"`
 	TransactionsFrom []Transaction `gorm:"foreignKey:FromUserID"`
 }
+
+type UserRole struct {
+	Admin bool
+	Lord  bool
+}
