@@ -1,4 +1,4 @@
-.PHONY: bash build deep-clean help logs migrate ps restart stop test up db_dump
+.PHONY: bash build deep-clean psql help logs migrate ps restart stop test up db_dump
 
 SERVICE ?= bot
 
@@ -27,6 +27,9 @@ migrate: build up #: Run migrations
 
 ps: #: Show running processes
 	docker compose ps
+
+psql: #: psql prompt on db container, password is postgres
+	docker compose exec db psql -d akc -h localhost -U postgres -W
 
 restart: #: Restart the service container
 	docker compose restart $(SERVICE)
