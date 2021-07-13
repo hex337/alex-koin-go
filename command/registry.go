@@ -2,18 +2,17 @@ package command
 
 import (
 	"fmt"
-
-	"github.com/slack-go/slack/slackevents"
 )
 
 type Command interface {
-	Run(msg string, event *slackevents.AppMentionEvent) (string, error)
+	Run(msg string, event *CoinEvent) (string, error)
 }
 
-func RunCommand(name string, event *slackevents.AppMentionEvent) (string, error) {
+func RunCommand(name string, event *CoinEvent) (string, error) {
 	registry := NewRegistry()
 	registry.Register("balance", &BalanceCommand{})
 	registry.Register("what_am_i", &IdentityCommand{})
+	registry.Register("create_coin", &CreateCoinCommand{})
 	cmd, err := registry.Lookup(name)
 
 	if err != nil {

@@ -1,24 +1,9 @@
 package command
 
-import (
-	"github.com/hex337/alex-koin-go/model"
-
-	"fmt"
-
-	"github.com/slack-go/slack/slackevents"
-)
-
 type IdentityCommand struct{}
 
-func (c *IdentityCommand) Run(msg string, event *slackevents.AppMentionEvent) (string, error) {
-	slackId := event.User
-	user, res, err := model.GetUserBySlackID(slackId)
-
-	if !res {
-		return fmt.Sprintf("User not found for %s.", slackId), nil
-	} else if err != nil {
-		return "Internal error", err
-	}
+func (c *IdentityCommand) Run(msg string, event *CoinEvent) (string, error) {
+	user := event.User
 
 	var message string
 

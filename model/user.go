@@ -4,7 +4,9 @@ import (
 	"github.com/hex337/alex-koin-go/config"
 
 	"errors"
+	"os"
 
+	"github.com/slack-go/slack"
 	"gorm.io/gorm"
 )
 
@@ -41,8 +43,46 @@ func GetUserBySlackID(id string) (*User, bool, error) {
 	return &user, true, nil
 }
 
+func GetOrCreateUserBySlackID(slackId string) (*User, error) {
+	user, res, err := GetUserBySlackID(slackId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !res {
+		botSecret := os.Getenv("SLACK_BOT_SECRET")
+		var api = slack.New(botSecret)
+		user, err := api.GetUserInfo(slackId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		var dbUser User
+		dbUser.FirstName = user.Profile.FirstName
+		dbUser.LastName = user.Profile.LastName
+		dbUser.SlackID = user.ID
+
+		err = CreateUser(&dbUser)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &dbUser, nil
+	}
+
+	return user, nil
+}
+
 func (u *User) GetBalance() int64 {
-	return config.DB.Model(&u).Association("Coins").Count()
+	association := config.DB.Model(&u).Association("Coins")
+	if association.Error != nil {
+		return 0
+	}
+
+	return association.Count()
 }
 
 func (u *User) Role() *UserRole {
