@@ -5,9 +5,12 @@ import (
 
 	"errors"
 	"os"
+	"time"
 
 	"github.com/slack-go/slack"
 	"gorm.io/gorm"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func CreateUser(user *User) (err error) {
@@ -83,6 +86,23 @@ func (u *User) GetBalance() int64 {
 	}
 
 	return association.Count()
+}
+
+func (u *User) LastCoinInDays() (float64, error) {
+
+	var lastCoin Coin
+
+	whatAmI := config.DB.Model(&u).Order("created_at desc").Limit(1).Association("CoinsCreated").Find(&lastCoin)
+
+	spew.Dump(whatAmI)
+
+	// if err != nil {
+	// return 0, err
+	// }
+
+	days := time.Now().Sub(lastCoin.CreatedAt).Hours() / 24
+	spew.Dump(days)
+	return days, nil
 }
 
 func (u *User) Role() *UserRole {
