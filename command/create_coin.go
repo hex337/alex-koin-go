@@ -12,8 +12,12 @@ import (
 type CreateCoinCommand struct{}
 
 func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
-	re := regexp.MustCompile(`^(?i)create koin \<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
+	re := regexp.MustCompile(`^(?i)create koin (?:for )\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(event.Message)
+
+	if len(matches) < 3 {
+		return "Invalid create koin format. Expected something like `@Alex Koin create koin @alexk for being amazing`. See the channel details for command syntax.", nil
+	}
 
 	toUserId := matches[1]
 	reason := matches[2]
@@ -79,5 +83,11 @@ func canCreateCoin(sender *model.User, receiver *model.User) (bool, string) {
 		return true, ""
 	}
 
-	return false, "Only supported for Admins and Lords."
+	coinCount := model.CoinsCreatedThisWeekForUser(sender)
+
+	if coinCount < 1 {
+		return true, ""
+	}
+
+	return false, "You can only create one koin per week, try again on Monday!"
 }
