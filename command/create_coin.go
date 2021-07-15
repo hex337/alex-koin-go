@@ -12,7 +12,7 @@ import (
 type CreateCoinCommand struct{}
 
 func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
-	re := regexp.MustCompile(`^(?i)create koin (?:for )\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
+	re := regexp.MustCompile(`^(?i)create koin (?:for )?\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(event.Message)
 
 	if len(matches) < 3 {
