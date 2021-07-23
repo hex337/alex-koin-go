@@ -25,15 +25,15 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	// Get or create the to user
 	toUser, err := model.GetOrCreateUserBySlackID(toUserId)
 
+	if err != nil {
+		log.Fatalf("Could not find user with slack id %s: %s", toUserId, err.Error())
+		return "", err
+	}
+
 	canCreate, msg := canCreateCoin(event.User, toUser)
 
 	if !canCreate {
 		return msg, nil
-	}
-
-	if err != nil {
-		log.Fatalf("Could not find user with slack id %s: %s", toUserId, err.Error())
-		return "", err
 	}
 
 	coin := &model.Coin{

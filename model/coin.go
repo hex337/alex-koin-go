@@ -13,6 +13,13 @@ func CreateCoin(coin *Coin) (err error) {
 	return nil
 }
 
+func (c *Coin) DestroyKoin() (err error) {
+	if err = config.DB.Delete(c).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func CoinsCreatedThisWeekForUser(user *User) int64 {
 	startOfWeek, _ := goment.New()
 	startOfWeek.StartOf("week")
