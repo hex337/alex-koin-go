@@ -60,6 +60,10 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
  func canDestroyCoin(sender *model.User, receiver *model.User) (bool, string) {
 	role := sender.Role()
 
+	if receiver.GetBalance() == 0 {
+		return false, "Have pitty on this poor soul, for they have no coin left to destroy"
+	}
+
 	if role.Admin || role.Lord {
 		return true, ""
 	}
