@@ -85,6 +85,17 @@ func (u *User) GetBalance() int64 {
 	return association.Count()
 }
 
+func (u *User) GetCoin() (*Coin, error) {
+	var coin Coin
+
+	err := config.DB.Model(&u).Limit(1).Association("Coins").Find(&coin)
+	if err != nil {
+		return nil, err
+	}
+
+	return &coin, nil
+}
+
 func (u *User) Role() *UserRole {
 
 	var role UserRole
