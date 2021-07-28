@@ -16,7 +16,7 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	matches := re.FindStringSubmatch(event.Message)
 
 	if len(matches) < 3 {
-		return "Invalid create koin format. Expected something like `@Alex Koin destroy koin @alexk for being amazing`. See the channel details for command syntax.", nil
+		return "Invalid destroy koin format. Expected something like `@Alex Koin destroy koin @alexk for being a bad cat`. See the channel details for command syntax.", nil
 	}
 
 	toUserId := matches[1]
@@ -30,20 +30,20 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 		return "", err
 	}
 
-	canCreate, msg := canDestroyCoin(event.User, toUser)
+	canDestroy, msg := canDestroyCoin(event.User, toUser)
 
-	if !canCreate {
+	if !canDestroy {
 		return msg, nil
 	}
 
-	koin, err := toUser.GetCoin()
+	coin, err := toUser.GetCoin()
 
 	if err != nil {
 		log.Fatalf("Failed to Destroy Koin. Err: %s", err)
 		return fmt.Sprintf("There was a failure in the system. Koin not destroyed"), nil
 	}
 
-	err = koin.DestroyKoin()
+	err = coin.DestroyKoin()
 
 	if err != nil {
 		log.Fatalf("Could not properly destroy koin. Err: %s", err)
@@ -61,7 +61,7 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	role := sender.Role()
 
 	if receiver.GetBalance() == 0 {
-		return false, "Have pitty on this poor soul, for they have no coin left to destroy"
+		return false, "Have pitty on this poor soul, for they've no coin left to destroy"
 	}
 
 	if role.Admin || role.Lord {
