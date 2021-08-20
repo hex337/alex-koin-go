@@ -58,7 +58,10 @@ func SlackEvents() {
 
 			case *slackevents.AppMentionEvent:
 				log.Printf("INF Recvd AppMentionedEvent %+v", ev)
-				go command.ProcessMessage(ev)
+				go command.ProcessAppMentionEvent(ev)
+			case *slackevents.MessageEvent:
+				log.Printf("INF Recvd MessageEvent %+v", ev)
+				go command.ProcessMessageEvent(ev)
 			}
 		}
 	})
