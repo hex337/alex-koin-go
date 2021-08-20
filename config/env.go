@@ -8,6 +8,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func GetNoPrefixChannelIds() map[string]int {
+	var idMap map[string]int
+	idMap = make(map[string]int)
+	channelIds, channelIdsProvided := os.LookupEnv("CHANNEL_IDS")
+	if !channelIdsProvided {
+		log.Fatalf("env var CHANNEL_IDS not set")
+	}
+
+	for _, element := range strings.Split(channelIds, ",") {
+		idMap[element] = 1
+	}
+
+	return idMap
+}
+
 func GetBotSlackID() string {
 	botId, botIdProvided := os.LookupEnv("SLACK_BOT_ID")
 	if !botIdProvided {

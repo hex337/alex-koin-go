@@ -15,21 +15,43 @@ import (
 )
 
 type CoinEvent struct {
-	User    *model.User
-	Message string
+	User           *model.User
+	Channel        string
+	Message        string
+	ReplyTimeStamp string
 }
 
-func ProcessMessage(event *slackevents.AppMentionEvent) {
+func ProcessMessageEvent(event *slackevents.MessageEvent) {
+	noPrefixChannels := config.GetNoPrefixChannelIds()
 
-	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
+	_, exists := noPrefixChannels[event.Channel]
 
-	coinEvent, err := createCoinEvent(event)
+	if !exists {
+		return
+	}
+
+	coinEvent, err := createCoinEventFromMessageEvent(event)
 	if err != nil {
 		log.Printf("Error creating Coin Event : %v", err)
 	}
 
-	name, err := parseCommandName(strings.TrimPrefix(coinEvent.Message, botID))
+	executeCoinEvent(coinEvent)
+	return
+}
 
+func ProcessAppMentionEvent(event *slackevents.AppMentionEvent) {
+
+	coinEvent, err := createCoinEventFromAppMention(event)
+	if err != nil {
+		log.Printf("Error creating Coin Event : %v", err)
+	}
+
+	executeCoinEvent(coinEvent)
+	return
+}
+
+func executeCoinEvent(coinEvent *CoinEvent) {
+	name, err := parseCommandName(coinEvent.Message)
 	if err != nil {
 		log.Printf("Could not parseCommandName : %v", err)
 	}
@@ -37,12 +59,7 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 	log.Printf("Command name : %v", name)
 
 	if name == "" {
-		response := ":blob-wave: \n\nI am under construction and I am still learning how to handle koin.\n\nCheck out https://github.com/hex337/alex-koin-go"
-		err := replyWith(event.Channel, event.TimeStamp, response)
-		if err != nil {
-			log.Printf("Could not replyWith : %v", err)
-			return
-		}
+		log.Printf("Command name empty, no actions to be had.")
 		return
 	}
 
@@ -52,7 +69,7 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 		return
 	}
 
-	err = replyWith(event.Channel, event.TimeStamp, response)
+	err = replyWith(coinEvent.Channel, coinEvent.ReplyTimeStamp, response)
 	if err != nil {
 		log.Printf("Could not replyWith : %v", err)
 		return
@@ -61,6 +78,8 @@ func ProcessMessage(event *slackevents.AppMentionEvent) {
 }
 
 func parseCommandName(msg string) (string, error) {
+	log.Printf("Attempting to match message: '%s'", msg)
+
 	commands := map[string]string{
 		// Who says regexp are not readable
 		"balance":     `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
@@ -71,6 +90,7 @@ func parseCommandName(msg string) (string, error) {
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)
 		if err != nil {
+			log.Printf("Error with regex: %v", err)
 			return "", err
 		}
 		if matched {
@@ -92,13 +112,33 @@ func replyWith(channel string, msgTimestamp string, response string) error {
 	return err
 }
 
-func createCoinEvent(event *slackevents.AppMentionEvent) (*CoinEvent, error) {
+func createCoinEventFromMessageEvent(event *slackevents.MessageEvent) (*CoinEvent, error) {
+	return createCoinEvent(event.User, event.Channel, event.Text, event.ThreadTimeStamp, event.TimeStamp)
+}
+
+func createCoinEventFromAppMention(event *slackevents.AppMentionEvent) (*CoinEvent, error) {
+	return createCoinEvent(event.User, event.Channel, event.Text, event.ThreadTimeStamp, event.TimeStamp)
+}
+
+func createCoinEvent(slackId string, channel string, message string, threadTimeStamp string, timeStamp string) (*CoinEvent, error) {
 	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
-	slackId := event.User
 
 	var coinEvent CoinEvent
+	var replyTimeStamp string
 
-	trimmedMessage := strings.TrimPrefix(event.Text, botID)
+	coinEvent.Channel = channel
+
+	if threadTimeStamp != "" {
+		// reply in the thread
+		replyTimeStamp = threadTimeStamp
+	} else {
+		// reply in a new thread on the original comment message
+		replyTimeStamp = timeStamp
+	}
+
+	coinEvent.ReplyTimeStamp = replyTimeStamp
+
+	trimmedMessage := strings.TrimPrefix(message, botID)
 	coinEvent.Message = trimmedMessage
 
 	user, err := model.GetOrCreateUserBySlackID(slackId)
