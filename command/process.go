@@ -22,12 +22,16 @@ type CoinEvent struct {
 }
 
 func ProcessMessageEvent(event *slackevents.MessageEvent) {
+	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
 	noPrefixChannels := config.GetNoPrefixChannelIds()
 
 	_, exists := noPrefixChannels[event.Channel]
 
 	if !exists {
-		return
+		// we need to prefix with bot id then
+		if !strings.HasPrefix(event.Text, botID) {
+			return
+		}
 	}
 
 	coinEvent, err := createCoinEventFromMessageEvent(event)
@@ -41,12 +45,12 @@ func ProcessMessageEvent(event *slackevents.MessageEvent) {
 
 func ProcessAppMentionEvent(event *slackevents.AppMentionEvent) {
 
-	coinEvent, err := createCoinEventFromAppMention(event)
-	if err != nil {
-		log.Printf("Error creating Coin Event : %v", err)
-	}
+	// coinEvent, err := createCoinEventFromAppMention(event)
+	// if err != nil {
+	// 	log.Printf("Error creating Coin Event : %v", err)
+	// }
 
-	executeCoinEvent(coinEvent)
+	// executeCoinEvent(coinEvent)
 	return
 }
 
@@ -82,10 +86,10 @@ func parseCommandName(msg string) (string, error) {
 
 	commands := map[string]string{
 		// Who says regexp are not readable
-		"balance":     `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
-		"what_am_i":   `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
-		"create_coin": `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
-		"stats":       `(?i)^[[:space:]]*stats$`,
+		"balance":      `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
+		"what_am_i":    `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
+		"create_coin":  `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
+		"stats":        `(?i)^[[:space:]]*stats$`,
 		"destroy_koin": `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
 	}
 	for name, pattern := range commands {

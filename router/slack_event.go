@@ -5,7 +5,6 @@ import (
 
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -56,11 +55,10 @@ func SlackEvents() {
 			innerEvent := eventsAPIEvent.InnerEvent
 			switch ev := innerEvent.Data.(type) {
 
-			case *slackevents.AppMentionEvent:
-				log.Printf("INF Recvd AppMentionedEvent %+v", ev)
-				go command.ProcessAppMentionEvent(ev)
+			// case *slackevents.AppMentionEvent:
+			// 	log.Printf("INF Recvd AppMentionedEvent %+v", ev)
+			// 	go command.ProcessAppMentionEvent(ev)
 			case *slackevents.MessageEvent:
-				log.Printf("INF Recvd MessageEvent %+v", ev)
 				go command.ProcessMessageEvent(ev)
 			}
 		}
