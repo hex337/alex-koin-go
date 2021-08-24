@@ -39,14 +39,6 @@ func main() {
 		MinedByUserID:   user1.Model.ID,
 		UserID:          user2.Model.ID,
 		CreatedByUserId: user1.Model.ID,
-		Transactions: []model.Transaction{
-			{
-				Amount:     1,
-				Memo:       "Initial Koin Creation",
-				FromUserID: user1.Model.ID,
-				ToUserID:   user2.Model.ID,
-			},
-		},
 	}
 
 	err = model.CreateCoin(coin)

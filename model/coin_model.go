@@ -13,5 +13,5 @@ type Coin struct {
 	UserID          uint
 	CreatedByUserId uint
 
-	Transactions []Transaction
+	// Transactions []Transaction
 }

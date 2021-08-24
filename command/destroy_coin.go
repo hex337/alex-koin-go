@@ -9,9 +9,9 @@ import (
 	"regexp"
 )
 
-type DestroyKoinCommand struct{}
+type DestroyCoinCommand struct{}
 
-func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
+func (c *DestroyCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	re := regexp.MustCompile(`^(?i)destroy koin (?:for )?\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(event.Message)
 
@@ -39,15 +39,15 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	coin, err := toUser.GetCoin()
 
 	if err != nil {
-		log.Fatalf("Failed to Destroy Koin. Err: %s", err)
-		return fmt.Sprintf("There was a failure in the system. Koin not destroyed"), nil
+		log.Fatalf("Failed to Destroy Coin. Err: %s", err)
+		return fmt.Sprintf("There was a failure in the system. Coin not destroyed"), nil
 	}
 
-	err = coin.DestroyKoin()
+	err = coin.DestroyCoin()
 
 	if err != nil {
 		log.Fatalf("Could not properly destroy koin. Err: %s", err)
-		return "Koin failed to be destroyed.", nil
+		return "Coin failed to be destroyed.", nil
 	}
 
 	return fmt.Sprintf("How terribly unfortunate. A koin has been destroyed because: %s. Do honor your Lords.", reason), nil
@@ -55,9 +55,9 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 
 /**
  * Rules:
- *  Only Admin and Lords can destroy Koin
+ *  Only Admin and Lords can destroy Coin
  */
- func canDestroyCoin(sender *model.User, receiver *model.User) (bool, string) {
+func canDestroyCoin(sender *model.User, receiver *model.User) (bool, string) {
 	role := sender.Role()
 
 	if receiver.GetBalance() == 0 {
@@ -69,4 +69,4 @@ func (c *DestroyKoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	}
 
 	return false, "You pathetic human you don't have any family any friends or any land."
- }
+}

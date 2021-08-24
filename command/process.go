@@ -86,11 +86,12 @@ func parseCommandName(msg string) (string, error) {
 
 	commands := map[string]string{
 		// Who says regexp are not readable
-		"balance":      `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
-		"what_am_i":    `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
-		"create_coin":  `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
-		"stats":        `(?i)^[[:space:]]*stats$`,
-		"destroy_koin": `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
+		"balance":       `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
+		"what_am_i":     `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
+		"create_coin":   `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
+		"stats":         `(?i)^[[:space:]]*stats$`,
+		"destroy_koin":  `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
+		"transfer_coin": `(?i)^[[:space:]]*transfer[[:space:]]+[0-9]+[[:space:]].*`,
 	}
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)
@@ -143,8 +144,10 @@ func createCoinEvent(slackId string, channel string, message string, threadTimeS
 
 	coinEvent.ReplyTimeStamp = replyTimeStamp
 
+	nbsp := "\u00A0"
 	trimmedMessage := strings.TrimPrefix(message, botID)
-	coinEvent.Message = trimmedMessage
+	// If you copy and paste in slack, it adds non-breaking spaces around @ mentions
+	coinEvent.Message = strings.Replace(trimmedMessage, nbsp, " ", -1)
 
 	user, err := model.GetOrCreateUserBySlackID(slackId)
 

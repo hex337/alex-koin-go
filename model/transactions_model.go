@@ -10,5 +10,5 @@ type Transaction struct {
 	Memo       string
 	FromUserID uint
 	ToUserID   uint
-	CoinID     uint
+	// CoinID     uint
 }
