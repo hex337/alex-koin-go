@@ -90,7 +90,7 @@ func parseCommandName(msg string) (string, error) {
 		"what_am_i":     `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
 		"create_coin":   `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
 		"stats":         `(?i)^[[:space:]]*stats$`,
-		"destroy_koin":  `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
+		"destroy_coin":  `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
 		"transfer_coin": `(?i)^[[:space:]]*transfer[[:space:]]+[0-9]+[[:space:]].*`,
 	}
 	for name, pattern := range commands {

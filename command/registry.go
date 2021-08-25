@@ -14,7 +14,7 @@ func RunCommand(name string, event *CoinEvent) (string, error) {
 	registry.Register("what_am_i", &IdentityCommand{})
 	registry.Register("create_coin", &CreateCoinCommand{})
 	registry.Register("stats", &StatsCommand{})
-	registry.Register("destroy_koin", &DestroyCoinCommand{})
+	registry.Register("destroy_coin", &DestroyCoinCommand{})
 	registry.Register("transfer_coin", &TransferCoinCommand{})
 	cmd, err := registry.Lookup(name)
 
