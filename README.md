@@ -1,9 +1,18 @@
+# Alex Koin
+
+A centralized non-crypto cryptocurrency. Also just a fun bot for slack.
 
 ## Welcome
 
 Alex Koin is being rewritten in golang. If you are interesteded in helping out, please read on!
 
 ## Development
+
+You'll need to copy the example `.env.template` to your own local `.env`.
+
+```shell
+$ cp .env.template .env
+```
 
 1. `make up`
 2. `ngrok http -subdomain=yourdomain 3000`

@@ -11,10 +11,10 @@ import (
 func GetNoPrefixChannelIds() map[string]int {
 	var idMap map[string]int
 	idMap = make(map[string]int)
-	channelIds, channelIdsProvided := os.LookupEnv("CHANNEL_IDS")
-	if !channelIdsProvided {
-		log.Fatalf("env var CHANNEL_IDS not set")
-	}
+	channelIds, _ := os.LookupEnv("CHANNEL_IDS")
+	// if !channelIdsProvided {
+	// 	log.Fatalf("env var CHANNEL_IDS not set")
+	// }
 
 	for _, element := range strings.Split(channelIds, ",") {
 		idMap[element] = 1
@@ -23,9 +23,25 @@ func GetNoPrefixChannelIds() map[string]int {
 	return idMap
 }
 
+func GetCurrencyShortName() string {
+	currencyShortName, envVarProvided := os.LookupEnv("CURRENCY_SHORT_NAME")
+	if !envVarProvided {
+		log.Fatalf("env var CURRENCY_SHORT_NAME not set")
+	}
+	return currencyShortName
+}
+
+func GetCurrencyName() string {
+	currencyName, envVarProvided := os.LookupEnv("CURRENCY_NAME")
+	if !envVarProvided {
+		log.Fatalf("env var CURRENCY_NAME not set")
+	}
+	return currencyName
+}
+
 func GetBotSlackID() string {
-	botId, botIdProvided := os.LookupEnv("SLACK_BOT_ID")
-	if !botIdProvided {
+	botId, envVarProvided := os.LookupEnv("SLACK_BOT_ID")
+	if !envVarProvided {
 		log.Fatalf("env var SLACK_BOT_ID not set")
 	}
 	return botId

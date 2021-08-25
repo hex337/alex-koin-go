@@ -13,7 +13,7 @@ func CreateCoin(coin *Coin) (err error) {
 	return nil
 }
 
-func (c *Coin) DestroyKoin() (err error) {
+func (c *Coin) DestroyCoin() (err error) {
 	if err = config.DB.Delete(c).Error; err != nil {
 		return err
 	}

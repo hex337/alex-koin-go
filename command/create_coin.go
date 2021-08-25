@@ -26,7 +26,7 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	toUser, err := model.GetOrCreateUserBySlackID(toUserId)
 
 	if err != nil {
-		log.Fatalf("Could not find user with slack id %s: %s", toUserId, err.Error())
+		log.Printf("Could not find user with slack id %s: %s", toUserId, err.Error())
 		return "", err
 	}
 
@@ -41,20 +41,24 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 		MinedByUserID:   event.User.ID,
 		UserID:          toUser.ID,
 		CreatedByUserId: event.User.ID,
-		Transactions: []model.Transaction{
-			{
-				Amount:     1,
-				Memo:       "Initial Coin Creation",
-				FromUserID: event.User.ID,
-				ToUserID:   toUser.ID,
-			},
-		},
 	}
 
 	err = model.CreateCoin(coin)
-
 	if err != nil {
-		log.Fatalf("Could not create coin : %s", err.Error())
+		log.Printf("Could not create coin : %s", err.Error())
+		return "", err
+	}
+
+	transaction := &model.Transaction{
+		Amount:     1,
+		Memo:       "Initial Coin Creation",
+		FromUserID: event.User.ID,
+		ToUserID:   toUser.ID,
+	}
+
+	err = model.CreateTransaction(transaction)
+	if err != nil {
+		log.Printf("Could not create transaction : %s", err.Error())
 		return "", err
 	}
 
