@@ -38,7 +38,7 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 		return "", err
 	}
 
-	canTransfer, msg := canTransferCoin(event.User, amount)
+	canTransfer, msg := canTransferCoin(event.User, toUser, amount)
 
 	if !canTransfer {
 		return msg, nil
@@ -74,7 +74,11 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 	return fmt.Sprintf("Transfered %d koin.", amount), nil
 }
 
-func canTransferCoin(sender *model.User, amount int) (bool, string) {
+func canTransferCoin(sender *model.User, receiver *model.User, amount int) (bool, string) {
+	if sender.ID == receiver.ID {
+		return false, "This action is very :sus:. We have notified the Lords of Koin about your behavior."
+	}
+
 	if amount <= 0 {
 		return false, "How about a big ol' ball of nope."
 	}
