@@ -76,7 +76,7 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 
 func canTransferCoin(sender *model.User, receiver *model.User, amount int) (bool, string) {
 	if sender.ID == receiver.ID {
-		return false, "How about a big ol' ball of nope."
+		return false, "This action is very :sus:. We have notified the Lords of Koin about your behavior."
 	}
 
 	if amount <= 0 {
