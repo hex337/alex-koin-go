@@ -11,8 +11,7 @@ func TestParseMessageWithSingleReceiver(t *testing.T) {
 	receiverId := "U000AAA"
 	reason := "being awesome"
 
-	parsedResult, err := parseMessage(fmt.Sprintf("transfer %s to <@%s> %s", numOfCoins, receiverId, reason))
-	assert.Nil(t, err, "parse without errors")
+	parsedResult := parseMessage(fmt.Sprintf("transfer %s to <@%s> %s", numOfCoins, receiverId, reason))
 
 	assert.Equal(t, numOfCoins, parsedResult["amount"], "matches coin")
 	assert.Equal(t, receiverId, parsedResult["to_slack_ids"], "matches receiverId")
@@ -25,8 +24,7 @@ func TestParseMessageWithMultipleReceivers(t *testing.T) {
 	secondReceiverId := "U000BBB"
 	reason := "being awesome"
 
-	parsedResult, err := parseMessage(fmt.Sprintf("transfer %s to <@%s> <@%s> %s", numOfCoins, receiverId, secondReceiverId, reason))
-	assert.Nil(t, err, "parse without errors")
+	parsedResult := parseMessage(fmt.Sprintf("transfer %s to <@%s> <@%s> %s", numOfCoins, receiverId, secondReceiverId, reason))
 
 	assert.Equal(t, numOfCoins, parsedResult["amount"], "matches coin")
 	assert.Equal(t, fmt.Sprintf("%s,%s", receiverId, secondReceiverId), parsedResult["to_slack_ids"], "matches receiverId")

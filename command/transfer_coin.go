@@ -3,12 +3,13 @@ package command
 import (
 	"errors"
 	"fmt"
+	"github.com/hex337/alex-koin-go/config"
+	"gorm.io/gorm"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/hex337/alex-koin-go/config"
 	"github.com/hex337/alex-koin-go/model"
 
 	"log"
@@ -18,8 +19,8 @@ import (
 type TransferCoinCommand struct{}
 
 func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
-	parsedResult, err := parseMessage(event.Message)
-	if err != nil {
+	parsedResult := parseMessage(event.Message)
+	if err := validateMessage(parsedResult, event.User); err != nil {
 		return err.Error(), nil
 	}
 
@@ -28,58 +29,67 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 	toUserIds := strings.Split(parsedResult["to_slack_ids"], ",")
 	reason := parsedResult["reason"]
 	splitAmounts := splitCoins(totalAmount, len(toUserIds))
+	toUsers := make([]*model.User, len(toUserIds))
 
 	for i, toUserId := range toUserIds {
-		amount := splitAmounts[i]
-		log.Printf("INF transfer coin amt: %d, toUserIds: %s, reason: %s", totalAmount, toUserIds, reason)
+	  toUser, err := model.GetOrCreateUserBySlackID(toUserId)
 
-		toUser, err := model.GetOrCreateUserBySlackID(toUserId)
-
-		if err != nil {
-			log.Printf("Could not find user with slack id %s: %s", toUserId, err.Error())
-			return "", err
-		}
-
-		canTransfer, msg := canTransferCoin(event.User, toUser, amount)
-
-		if !canTransfer {
-			return msg, nil
-		}
-
-		var coinIds []int
-		err = config.DB.Table("coins").Select("id").Where("user_id = ?", event.User.ID).Limit(amount).Find(&coinIds).Error
-		if err != nil {
-			log.Printf("ERR error fetching coin ids: %s", err)
-			return "So uh... something went wrong. D'oh.", err
-		}
-
-		err = config.DB.Table("coins").Where("user_id = ? AND id IN ?", event.User.ID, coinIds).UpdateColumn("user_id", toUser.ID).Error
-		if err != nil {
-			log.Printf("ERR error updating coins: %s", err)
-			return "So uh... something went wrong. D'oh.", err
-		}
-
-		transfer := &model.Transaction{
-			Amount:     amount,
-			Memo:       reason,
-			FromUserID: event.User.ID,
-			ToUserID:   toUser.ID,
-		}
-
-		err = model.CreateTransaction(transfer)
-
-		if err != nil {
-			log.Printf("Could not transfer coin(s) : %s", err.Error())
-			return "", err
-		}
-
-		log.Printf("Transfered %d koin from %d to %s.", amount, event.User.ID, toUserId)
+	  if err != nil {
+		log.Printf("Could not find user with slack id %s: %s", toUserId, err.Error())
+		return "", err
+	  }
+	  toUsers[i] = toUser
 	}
+
+	config.DB.Transaction(func(tx *gorm.DB) error {
+		for i, toUser := range toUsers {
+			amount := splitAmounts[i]
+			log.Printf("INF transfer coin amt: %d, toUserIds: %s, reason: %s", totalAmount, toUserIds, reason)
+
+			if err := transfer(event.User.ID, toUser, amount, reason); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 
 	return fmt.Sprintf("Transfered %d koin.", totalAmount), nil
 }
 
-func parseMessage(message string) (map[string]string, error) {
+func transfer(senderId uint, toUser *model.User, amount int, reason string) error {
+	var coinIds []int
+	err := config.DB.Table("coins").Select("id").Where("user_id = ?", senderId).Limit(amount).Find(&coinIds).Error
+	if err != nil {
+		log.Printf("ERR error fetching coin ids: %s", err)
+		return err
+	}
+
+	err = config.DB.Table("coins").Where("user_id = ? AND id IN ?", senderId, coinIds).UpdateColumn("user_id", toUser.ID).Error
+	if err != nil {
+		log.Printf("ERR error updating coins: %s", err)
+		return err
+	}
+
+	transfer := &model.Transaction{
+		Amount:     amount,
+		Memo:       reason,
+		FromUserID: senderId,
+		ToUserID:   toUser.ID,
+	}
+
+	err = model.CreateTransaction(transfer)
+
+	if err != nil {
+		log.Printf("Could not transfer coin(s) : %s", err.Error())
+		return err
+	}
+
+	log.Printf("Transfered %d koin from %d to %s.", amount, senderId, toUser.SlackID)
+	return nil
+}
+
+func parseMessage(message string) map[string]string {
 	re := regexp.MustCompile(`^(?i)transfer (?P<amount>[0-9]+) (?:to )?(?P<to_slack_ids>\<[@0-9A-Z<> ]+\>) (?:for)?(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(message)
 
@@ -104,15 +114,10 @@ func parseMessage(message string) (map[string]string, error) {
 		}
 	}
 	result["to_slack_ids"] = strings.Join(slackIds, ",")
-
-	err := validateMessage(result)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return result
 }
 
-func validateMessage(parsedResult map[string]string) error {
+func validateMessage(parsedResult map[string]string, sender *model.User) error {
 	requiredKeys := []string {
 		"amount",
 		"to_slack_ids",
@@ -132,10 +137,24 @@ func validateMessage(parsedResult map[string]string) error {
 		return errors.New("Invalid transfer amount.")
 	}
 
+	if amount <= 0 {
+		return errors.New("How about a big ol' ball of nope.")
+	}
+
 	numOfReceivers := len(strings.Split(parsedResult["to_slack_ids"], ","))
 	if amount < numOfReceivers {
 		log.Printf("amount is not enough for split: amount: %d, receivers: %d", amount, numOfReceivers)
 		return errors.New(fmt.Sprintf("alex koin does not support fraction"))
+	}
+
+	if sender.GetBalance() < int64(amount) {
+		return errors.New("You lack the koin for such a transfer.")
+	}
+
+	for _, toSlackId := range strings.Split(parsedResult["to_slack_ids"], ",") {
+		if sender.SlackID == toSlackId {
+			return errors.New("This action is very :sus:. We have notified the Lords of Koin about your behavior.")
+		}
 	}
 
 	return nil
@@ -152,20 +171,4 @@ func splitCoins(amount int, count int) []int {
 	}
 	coins[rand.Intn(len(coins))] += amount
 	return coins
-}
-
-func canTransferCoin(sender *model.User, receiver *model.User, amount int) (bool, string) {
-	if sender.ID == receiver.ID {
-		return false, "This action is very :sus:. We have notified the Lords of Koin about your behavior."
-	}
-
-	if amount <= 0 {
-		return false, "How about a big ol' ball of nope."
-	}
-
-	if sender.GetBalance() < int64(amount) {
-		return false, "You lack the koin for such a transfer."
-	}
-
-	return true, ""
 }
