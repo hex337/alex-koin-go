@@ -13,18 +13,18 @@ import (
 
 type TransferCoinCommand struct{}
 
-func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
+func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (BotResponse, error) {
 	re := regexp.MustCompile(`^(?i)transfer (?P<amount>[0-9]+) (?:to )?\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(event.Message)
 
 	if len(matches) < 4 {
-		return "Invalid transfer format. Expected something like `@Alex Koin transfer 3 to @alexk for being amazing`. See the channel details for command syntax.", nil
+		return BotResponse{Text: "Invalid transfer format. Expected something like `@Alex Koin transfer 3 to @alexk for being amazing`. See the channel details for command syntax."}, nil
 	}
 
 	amount, err := strconv.Atoi(matches[1])
 	if err != nil {
 		log.Printf("INF amount not parsed as int: %s", matches[1])
-		return "Invalid transfer amount.", nil
+		return BotResponse{Text: "Invalid transfer amount."}, nil
 	}
 	toUserId := matches[2]
 	reason := matches[3]
@@ -35,26 +35,26 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 
 	if err != nil {
 		log.Printf("Could not find user with slack id %s: %s", toUserId, err.Error())
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
 	canTransfer, msg := canTransferCoin(event.User, toUser, amount)
 
 	if !canTransfer {
-		return msg, nil
+		return BotResponse{Text: msg}, nil
 	}
 
 	var coinIds []int
 	err = config.DB.Table("coins").Select("id").Where("user_id = ?", event.User.ID).Limit(amount).Find(&coinIds).Error
 	if err != nil {
 		log.Printf("ERR error fetching coin ids: %s", err)
-		return "So uh... something went wrong. D'oh.", err
+		return BotResponse{Text: "So uh... something went wrong. D'oh."}, err
 	}
 
 	err = config.DB.Table("coins").Where("user_id = ? AND id IN ?", event.User.ID, coinIds).UpdateColumn("user_id", toUser.ID).Error
 	if err != nil {
 		log.Printf("ERR error updating coins: %s", err)
-		return "So uh... something went wrong. D'oh.", err
+		return BotResponse{Text: "So uh... something went wrong. D'oh."}, err
 	}
 
 	transfer := &model.Transaction{
@@ -68,10 +68,10 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (string, error) 
 
 	if err != nil {
 		log.Printf("Could not transfer coin(s) : %s", err.Error())
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
-	return fmt.Sprintf("Transfered %d koin.", amount), nil
+	return BotResponse{Text: fmt.Sprintf("Transfered %d koin.", amount)}, nil
 }
 
 func canTransferCoin(sender *model.User, receiver *model.User, amount int) (bool, string) {

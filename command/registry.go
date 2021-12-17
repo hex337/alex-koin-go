@@ -5,21 +5,25 @@ import (
 )
 
 type Command interface {
-	Run(msg string, event *CoinEvent) (string, error)
+	Run(msg string, event *CoinEvent) (BotResponse, error)
 }
 
-func RunCommand(name string, event *CoinEvent) (string, error) {
+func RunCommand(name string, event *CoinEvent) (BotResponse, error) {
 	registry := NewRegistry()
+	registry.Register("all_nfts", &AllNftsCommand{})
 	registry.Register("balance", &BalanceCommand{})
-	registry.Register("what_am_i", &IdentityCommand{})
 	registry.Register("create_coin", &CreateCoinCommand{})
-	registry.Register("stats", &StatsCommand{})
+	registry.Register("create_nft", &CreateNftCommand{})
 	registry.Register("destroy_coin", &DestroyCoinCommand{})
+	registry.Register("my_nfts", &MyNftsCommand{})
+	registry.Register("stats", &StatsCommand{})
 	registry.Register("transfer_coin", &TransferCoinCommand{})
+	registry.Register("transfer_nft", &TransferNftCommand{})
+	registry.Register("what_am_i", &IdentityCommand{})
 	cmd, err := registry.Lookup(name)
 
 	if err != nil {
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
 	return cmd.Run(name, event)

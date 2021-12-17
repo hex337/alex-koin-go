@@ -21,6 +21,13 @@ type CoinEvent struct {
 	ReplyTimeStamp string
 }
 
+type BotResponse struct {
+	Pretext        string
+	Text           string
+	Fields         []slack.AttachmentField
+	ReplyTimeStamp string
+}
+
 func ProcessMessageEvent(event *slackevents.MessageEvent) {
 	botID := fmt.Sprintf("<@%s> ", config.GetBotSlackID())
 	noPrefixChannels := config.GetNoPrefixChannelIds()
@@ -67,13 +74,13 @@ func executeCoinEvent(coinEvent *CoinEvent) {
 		return
 	}
 
-	response, err := RunCommand(name, coinEvent)
+	bot_response, err := RunCommand(name, coinEvent)
 	if err != nil {
 		log.Printf("Could not RunCommand : %v", err)
 		return
 	}
 
-	err = replyWith(coinEvent.Channel, coinEvent.ReplyTimeStamp, response)
+	err = replyWith(coinEvent.Channel, coinEvent.ReplyTimeStamp, bot_response.Text)
 	if err != nil {
 		log.Printf("Could not replyWith : %v", err)
 		return
@@ -86,12 +93,16 @@ func parseCommandName(msg string) (string, error) {
 
 	commands := map[string]string{
 		// Who says regexp are not readable
+		"all_nfts":      `(?i)^[[:space:]]*all[[:space:]]+nfts$`,
 		"balance":       `(?i)^[[:space:]]*my[[:space:]]+balance.*`,
-		"what_am_i":     `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
 		"create_coin":   `(?i)^[[:space:]]*create[[:space:]]+koin.*`,
-		"stats":         `(?i)^[[:space:]]*stats$`,
+		"create_nft":    `(?i)^[[:space:]]*create[[:space:]]+nft.*`,
 		"destroy_coin":  `(?i)^[[:space:]]*destroy[[:space:]]+koin.*`,
+		"my_nfts":       `(?i)^[[:space:]]*my[[:space:]]+nfts$`,
+		"stats":         `(?i)^[[:space:]]*stats$`,
 		"transfer_coin": `(?i)^[[:space:]]*transfer[[:space:]]+[0-9]+[[:space:]].*`,
+		"transfer_nft":  `(?i)^[[:space:]]*transfer[[:space:]]+nft+[[:space:]].*`,
+		"what_am_i":     `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
 	}
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)

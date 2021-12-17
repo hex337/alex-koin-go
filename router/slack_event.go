@@ -1,6 +1,8 @@
 package router
 
 import (
+	"log"
+
 	"github.com/hex337/alex-koin-go/command"
 
 	"encoding/json"
@@ -59,6 +61,7 @@ func SlackEvents() {
 			// 	log.Printf("INF Recvd AppMentionedEvent %+v", ev)
 			// 	go command.ProcessAppMentionEvent(ev)
 			case *slackevents.MessageEvent:
+				log.Printf("INF Recvd AppMentionedEvent %+v", ev)
 				go command.ProcessMessageEvent(ev)
 			}
 		}

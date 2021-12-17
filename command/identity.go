@@ -2,7 +2,7 @@ package command
 
 type IdentityCommand struct{}
 
-func (c *IdentityCommand) Run(msg string, event *CoinEvent) (string, error) {
+func (c *IdentityCommand) Run(msg string, event *CoinEvent) (BotResponse, error) {
 	user := event.User
 
 	var message string
@@ -17,5 +17,5 @@ func (c *IdentityCommand) Run(msg string, event *CoinEvent) (string, error) {
 		message = "You are a peasant. Enjoy the Koin, and bask in it's glory."
 	}
 
-	return message, nil
+	return BotResponse{Text: message}, nil
 }

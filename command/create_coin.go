@@ -11,12 +11,12 @@ import (
 
 type CreateCoinCommand struct{}
 
-func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
+func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (BotResponse, error) {
 	re := regexp.MustCompile(`^(?i)create koin (?:for )?\<@(?P<to_slack_id>[0-9A-Z]+)\> (?:for)??(?P<reason>.+)`)
 	matches := re.FindStringSubmatch(event.Message)
 
 	if len(matches) < 3 {
-		return "Invalid create koin format. Expected something like `@Alex Koin create koin @alexk for being amazing`. See the channel details for command syntax.", nil
+		return BotResponse{Text: "Invalid create koin format. Expected something like `@Alex Koin create koin @alexk for being amazing`. See the channel details for command syntax."}, nil
 	}
 
 	toUserId := matches[1]
@@ -27,13 +27,13 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 
 	if err != nil {
 		log.Printf("Could not find user with slack id %s: %s", toUserId, err.Error())
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
 	canCreate, msg := canCreateCoin(event.User, toUser)
 
 	if !canCreate {
-		return msg, nil
+		return BotResponse{Text: msg}, nil
 	}
 
 	coin := &model.Coin{
@@ -46,7 +46,7 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	err = model.CreateCoin(coin)
 	if err != nil {
 		log.Printf("Could not create coin : %s", err.Error())
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
 	transaction := &model.Transaction{
@@ -59,10 +59,10 @@ func (c *CreateCoinCommand) Run(msg string, event *CoinEvent) (string, error) {
 	err = model.CreateTransaction(transaction)
 	if err != nil {
 		log.Printf("Could not create transaction : %s", err.Error())
-		return "", err
+		return BotResponse{Text: ""}, err
 	}
 
-	return fmt.Sprintf("Created new koin `%s` with reason '%s'.", coin.Hash, reason), nil
+	return BotResponse{Text: fmt.Sprintf("Created new koin `%s` with reason '%s'.", coin.Hash, reason)}, nil
 }
 
 /**
