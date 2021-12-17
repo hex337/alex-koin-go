@@ -1,6 +1,8 @@
 package model
 
 import (
+	"log"
+
 	"github.com/hex337/alex-koin-go/config"
 
 	"errors"
@@ -94,6 +96,19 @@ func (u *User) GetCoin() (*Coin, error) {
 	}
 
 	return &coin, nil
+}
+
+func (u *User) GetNfts() ([]Nft, error) {
+	var nfts []Nft
+
+	err := config.DB.Table("nfts").Where("owned_by_user_id = ? AND price_paid > 0", u.ID).Find(&nfts).Error
+
+	if err != nil {
+		log.Printf("ERR error fetching nfts: %s", err)
+		return nfts, err
+	}
+
+	return nfts, nil
 }
 
 func (u *User) Role() *UserRole {

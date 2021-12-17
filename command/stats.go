@@ -9,10 +9,14 @@ import (
 type StatsCommand struct{}
 
 // TODO: Add more stats - coins received, coins transfered, total coins
-func (c *StatsCommand) Run(msg string, event *CoinEvent) (string, error) {
+func (c *StatsCommand) Run(msg string, event *CoinEvent) (BotResponse, error) {
 	user := event.User
 
 	coinCount := model.CoinsCreatedThisWeekForUser(user)
 
-	return fmt.Sprintf("Stats for %s: ```Coins created this week: %d```", user.FirstName, coinCount), nil
+	bot_response := BotResponse{
+		Text: fmt.Sprintf("Stats for %s: ```Coins created this week: %d```", user.FirstName, coinCount),
+	}
+
+	return bot_response, nil
 }
