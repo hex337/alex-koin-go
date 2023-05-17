@@ -82,7 +82,7 @@ func (c *TransferNftCommand) Run(msg string, event *CoinEvent) (BotResponse, err
 		return BotResponse{Text: "So uh... something went wrong. D'oh."}, err
 	}
 
-	return BotResponse{Text: "Transfered the NFT."}, nil
+	return BotResponse{Text: "Transferred the NFT."}, nil
 }
 
 func canTransferNft(sender *model.User, receiver *model.User, amount int) (bool, string) {
