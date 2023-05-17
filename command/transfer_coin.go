@@ -71,7 +71,7 @@ func (c *TransferCoinCommand) Run(msg string, event *CoinEvent) (BotResponse, er
 		return BotResponse{Text: ""}, err
 	}
 
-	return BotResponse{Text: fmt.Sprintf("Transfered %d koin.", amount)}, nil
+	return BotResponse{Text: fmt.Sprintf("Transferred %d koin.", amount)}, nil
 }
 
 func canTransferCoin(sender *model.User, receiver *model.User, amount int) (bool, string) {
