@@ -20,6 +20,7 @@ func RunCommand(name string, event *CoinEvent) (BotResponse, error) {
 	registry.Register("transfer_coin", &TransferCoinCommand{})
 	registry.Register("transfer_nft", &TransferNftCommand{})
 	registry.Register("what_am_i", &IdentityCommand{})
+	registry.Register("what_are_you", &SelfIdentityCommand{})
 	cmd, err := registry.Lookup(name)
 
 	if err != nil {
