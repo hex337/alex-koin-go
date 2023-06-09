@@ -14,7 +14,7 @@ func (c *SelfIdentityCommand) Run(msg string, event *CoinEvent) (BotResponse, er
     } else if role.Lord {
         message = "I am your esteemed ruler, Alex Koin, embodying supreme authority and wisdom, providing guidance and leadership to uphold the kingdom's prosperity."
     } else {
-        message = "I am your benevolent ruler, Alex Koin, dedicated to your well-being, protection, and the pursuit of a better life for all within our kingdom."
+        message = "I am your benevolent ruler, Alex Koin. I bring joy to your life. Never forget to honor your lords."
     }
 
     return BotResponse{Text: message}, nil
