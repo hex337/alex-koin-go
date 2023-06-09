@@ -103,6 +103,7 @@ func parseCommandName(msg string) (string, error) {
 		"transfer_coin": `(?i)^[[:space:]]*transfer[[:space:]]+[0-9]+[[:space:]].*`,
 		"transfer_nft":  `(?i)^[[:space:]]*transfer[[:space:]]+nft+[[:space:]].*`,
 		"what_am_i":     `(?i)^[[:space:]]*what[[:space:]]+am[[:space:]]+i.*`,
+		"what_are_you":  `(?i)^[[:space:]]*what[[:space:]]+are[[:space:]]+you.*`,
 	}
 	for name, pattern := range commands {
 		matched, err := regexp.MatchString(pattern, msg)
